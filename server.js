@@ -61,21 +61,35 @@ app.get('/image/:item_id', (req, res) => {
     const uploadDir = path.join(__dirname, 'uploads');
     fs.readdir(uploadDir, (err, files) => {
         if (err) {
+            console.error('Error reading image directory:', err);
             return res.status(500).json({ error: 'Failed to read image directory' });
         }
 
         // Find a file that matches the item_id with any extension
-        const imageFile = files.find(file => file.startsWith(item_id) && file !== item_id);  // Ensure it matches the item_id and has an extension
+        const imageFile = files.find(file => file.startsWith(item_id) && file !== item_id); // Ensure it matches the item_id and has an extension
 
         if (imageFile) {
             // Build the file path dynamically using the found image
             const imageFilePath = path.join(uploadDir, imageFile);
+
+            // Log the requested file's details in formatted JSON
+            console.log("Requested File:", JSON.stringify({
+                item_id: item_id,
+                file_name: imageFile,
+                file_path: imageFilePath
+            }, null, 2)); // Pretty-print with 2-space indentation
+
             res.sendFile(imageFilePath);
         } else {
+            console.log(JSON.stringify({
+                item_id: item_id,
+                error: 'Image not found'
+            }, null, 2)); // Pretty-print with 2-space indentation
             res.status(404).json({ error: 'Image not found' });
         }
     });
 });
+
   
 const port = 5003;
 app.listen(port, () => {
